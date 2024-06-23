@@ -1,0 +1,63 @@
+version: '1'
+
+services:
+  mongo1:
+    image: mongo:4
+    container_name: mongo1
+    command: mongod --replSet myReplicaSet --bind_ip localhost,mongo1
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - mongoCluster
+
+
+  mongo2:
+    image: mongo:4
+    container_name: mongo2
+    restart: always
+    command: mongod --replSet myReplicaSet --bind_ip localhost,mongo2
+    ports:
+      - "27018:27017"
+    networks:
+      - mongoCluster
+
+
+  mongo3:
+    image: mongo:4
+    container_name: mongo3
+    restart: always
+    command: mongod --replSet myReplicaSet --bind_ip localhost,mongo3
+    ports:
+      - "27019:27017"
+    networks:
+      - mongoCluster
+
+
+  yolo:
+    image: ${YOLO5_IMG_NAME}
+    ports:
+      - "8081:8081"
+    volumes:
+      - $HOME/.aws/credentials:/root/.aws/credentials
+    environment:
+      - BUCKET_NAME=${BUCKET_NAME}
+    networks:
+      - mongoCluster
+
+  app:
+    image: ${POLYBOT_IMG_NAME}
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - TELEGRAM_APP_URL=${TELEGRAM_APP_URL}
+      - BUCKET_NAME=${BUCKET_NAME}
+    ports:
+      - "8443:8443"
+    volumes:
+      - /home/ubuntu:/home/ubuntu/
+    networks:
+      - mongoCluster
+
+networks:
+  mongoCluster:
+    driver: bridge
