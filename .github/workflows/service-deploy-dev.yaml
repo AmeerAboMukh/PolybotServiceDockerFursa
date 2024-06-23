@@ -19,12 +19,12 @@ jobs:
         run: |
           cd polybot
 
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
           IMAGE_NAME=polybot:${{ github.run_number }}
           docker build -t $IMAGE_NAME .
           docker tag $IMAGE_NAME ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME
-          docker push $IMAGE_NAME
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME
 
   Yolo5Build:
     runs-on: ubuntu-latest
